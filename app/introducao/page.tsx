@@ -1,13 +1,14 @@
 "use client";
 import {
-    useEffect,
-    useState,
-    type CSSProperties,
-    type ReactNode,
-  } from "react";
+  useEffect,
+  useState,
+  type CSSProperties,
+} from "react";
 import Image from "next/image";
 import { IBM_Plex_Sans, Noto_Sans_JP } from "next/font/google";
 import { getSuzukiData } from "@/lib/api";
+
+import SuzukiCapsuleButton from "@/components/SuzukiCapsuleButton";
 
 const fontDisplay = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -154,53 +155,6 @@ function StarField() {
   );
 }
 
-function SuzukiCapsuleButton({
-  children,
-  size = "md",
-  className = "",
-}: {
-  children: ReactNode;
-  size?: "sm" | "md";
-  className?: string;
-}) {
-  const isSm = size === "sm";
-
-  return (
-    <button
-      type="button"
-      className={`${fontDisplay.className} group inline-flex items-center rounded-full border-0 bg-transparent p-0 font-medium uppercase tracking-[0.14em] text-[#f5f1e8] ${className}`}
-    >
-      <span
-className={`relative z-10 flex shrink-0 items-center justify-center rounded-full bg-[#f0743e] text-[#25282b] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
-  ${
-    isSm
-      ? "group-hover:translate-x-[calc(100%+5rem)] h-8 w-8"
-      : "group-hover:translate-x-[calc(100%+6rem)] h-11 w-11"
-  }`}        aria-hidden
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 256 256"
-          className={isSm ? "h-3.5 w-3.5" : "h-4.5 w-4.5"}
-          fill="currentColor"
-        >
-          <path d="M224.49,136.49l-72,72a12,12,0,0,1-17-17L187,140H40a12,12,0,0,1,0-24H187L135.51,64.48a12,12,0,0,1,17-17l72,72A12,12,0,0,1,224.49,136.49Z" />
-        </svg>
-      </span>
-
-      <span
-        className={`relative z-0 -ml-1 flex items-center rounded-full bg-[#25282b] text-white transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-[calc(2.75rem+0.25rem)] ${
-          isSm
-            ? "min-h-8 px-5 pl-6 text-[0.62rem]"
-            : "min-h-11 px-8 pl-9 text-[0.72rem]"
-        }`}
-      >
-        {children}
-      </span>
-    </button>
-  );
-}
-
 function WordmarkLogo() {
   return (
     <a
@@ -220,8 +174,13 @@ function WordmarkLogo() {
 }
 
 function SiteHeader() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const link =
     "text-[0.72rem] font-normal uppercase tracking-[0.2em] text-[#123126]/55 transition-colors duration-300 hover:text-[#f0743e]";
+
+  const whatsappUrl =
+    "https://wa.me/5511945468423?text=Ol%C3%A1%2C%20estou%20realizando%20a%20pesquisa%20formativa%20da%20Escola%20Suzuki%20e%20gostaria%20de%20falar%20com%20voc%C3%AAs.";
 
   return (
     <header className="suzuki-enter suzuki-enter-delay-1 relative z-30 border-b border-[#123126]/[0.06] bg-[#faf8f2]/80 backdrop-blur-md supports-[backdrop-filter]:bg-[#faf8f2]/65">
@@ -232,21 +191,39 @@ function SiteHeader() {
           className={`${fontDisplay.className} absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:flex md:items-center md:gap-10`}
           aria-label="Principal"
         >
-          <a className={link} href="#">
-            Início
-          </a>
-          <a className={link} href="#">
-            Formação
-          </a>
-          <a className={link} href="#">
-            SECE
+          <a className={link} href="/">Recomeçar</a>
+          <a className={link} href="https://escolasuzuki.com.br" target="_blank" rel="noopener noreferrer">
+            Site oficial
           </a>
         </nav>
 
-        <SuzukiCapsuleButton size="sm" className="shrink-0">
-          Fale conosco
-        </SuzukiCapsuleButton>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="hidden shrink-0 md:block">
+          <SuzukiCapsuleButton size="sm">Fale conosco</SuzukiCapsuleButton>
+        </a>
+
+        <button
+          type="button"
+          onClick={() => setMenuOpen((prev) => !prev)}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-[#25282b] text-white md:hidden"
+          aria-label="Abrir menu"
+        >
+          {menuOpen ? "×" : "☰"}
+        </button>
       </div>
+
+      {menuOpen && (
+        <div className={`${fontDisplay.className} border-t border-[#123126]/[0.06] bg-[#faf8f2]/95 px-5 py-5 md:hidden`}>
+          <div className="flex flex-col gap-5">
+            <a className={link} href="/">Recomeçar</a>
+            <a className={link} href="https://escolasuzuki.com.br" target="_blank" rel="noopener noreferrer">
+              Site oficial
+            </a>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="w-fit">
+              <SuzukiCapsuleButton size="sm">Fale conosco</SuzukiCapsuleButton>
+            </a>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

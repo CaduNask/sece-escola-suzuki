@@ -1,6 +1,9 @@
-import type { CSSProperties, ReactNode } from "react";
+"use client";
+import { useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { IBM_Plex_Sans, Noto_Sans_JP } from "next/font/google";
+
+import SuzukiCapsuleButton from "@/components/SuzukiCapsuleButton";
 
 const fontDisplay = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -146,55 +149,8 @@ function StarField() {
     </div>
   );
 }
-
-function SuzukiCapsuleButton({
-  children,
-  size = "md",
-  className = "",
-}: {
-  children: ReactNode;
-  size?: "sm" | "md";
-  className?: string;
-}) {
-  const isSm = size === "sm";
-
-  return (
-    <button
-      type="button"
-      className={`${fontDisplay.className} group inline-flex items-center rounded-full border-0 bg-transparent p-0 font-medium uppercase tracking-[0.14em] text-[#f5f1e8] ${className}`}
-    >
-      <span
-className={`relative z-10 flex shrink-0 items-center justify-center rounded-full bg-[#f0743e] text-[#25282b] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
-  ${
-    isSm
-      ? "group-hover:translate-x-[calc(100%+5rem)] h-8 w-8"
-      : "group-hover:translate-x-[calc(100%+9rem)] h-11 w-11"
-  }`}        aria-hidden
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 256 256"
-          className={isSm ? "h-3.5 w-3.5" : "h-4.5 w-4.5"}
-          fill="currentColor"
-        >
-          <path d="M224.49,136.49l-72,72a12,12,0,0,1-17-17L187,140H40a12,12,0,0,1,0-24H187L135.51,64.48a12,12,0,0,1,17-17l72,72A12,12,0,0,1,224.49,136.49Z" />
-        </svg>
-      </span>
-
-      <span
-        className={`relative z-0 -ml-1 flex items-center rounded-full bg-[#25282b] text-white transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-[calc(2.75rem+0.25rem)] ${
-          isSm
-            ? "min-h-8 px-5 pl-6 text-[0.62rem]"
-            : "min-h-11 px-8 pl-9 text-[0.72rem]"
-        }`}
-      >
-        {children}
-      </span>
-    </button>
-  );
-}
-
-function WordmarkLogo() {
+  
+  function WordmarkLogo() {
   return (
     <a
       href="/"
@@ -213,8 +169,13 @@ function WordmarkLogo() {
 }
 
 function SiteHeader() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const link =
     "text-[0.72rem] font-normal uppercase tracking-[0.2em] text-[#123126]/55 transition-colors duration-300 hover:text-[#f0743e]";
+
+  const whatsappUrl =
+    "https://wa.me/5511945468423?text=Ol%C3%A1%2C%20estou%20realizando%20a%20pesquisa%20formativa%20da%20Escola%20Suzuki%20e%20gostaria%20de%20falar%20com%20voc%C3%AAs.";
 
   return (
     <header className="suzuki-enter suzuki-enter-delay-1 relative z-30 border-b border-[#123126]/[0.06] bg-[#faf8f2]/80 backdrop-blur-md supports-[backdrop-filter]:bg-[#faf8f2]/65">
@@ -225,21 +186,39 @@ function SiteHeader() {
           className={`${fontDisplay.className} absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:flex md:items-center md:gap-10`}
           aria-label="Principal"
         >
-          <a className={link} href="#">
-            Início
-          </a>
-          <a className={link} href="#">
-            Formação
-          </a>
-          <a className={link} href="#">
-            SECE
+          <a className={link} href="/">Recomeçar</a>
+          <a className={link} href="https://escolasuzuki.com.br" target="_blank" rel="noopener noreferrer">
+            Site oficial
           </a>
         </nav>
 
-        <SuzukiCapsuleButton size="sm" className="shrink-0">
-          Fale conosco
-        </SuzukiCapsuleButton>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="hidden shrink-0 md:block">
+          <SuzukiCapsuleButton size="sm">Fale conosco</SuzukiCapsuleButton>
+        </a>
+
+        <button
+          type="button"
+          onClick={() => setMenuOpen((prev) => !prev)}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-[#25282b] text-white md:hidden"
+          aria-label="Abrir menu"
+        >
+          {menuOpen ? "×" : "☰"}
+        </button>
       </div>
+
+      {menuOpen && (
+        <div className={`${fontDisplay.className} border-t border-[#123126]/[0.06] bg-[#faf8f2]/95 px-5 py-5 md:hidden`}>
+          <div className="flex flex-col gap-5">
+            <a className={link} href="/">Recomeçar</a>
+            <a className={link} href="https://escolasuzuki.com.br" target="_blank" rel="noopener noreferrer">
+              Site oficial
+            </a>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="w-fit">
+              <SuzukiCapsuleButton size="sm">Fale conosco</SuzukiCapsuleButton>
+            </a>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
@@ -336,26 +315,28 @@ export default function Home() {
 
             <aside className="suzuki-enter suzuki-enter-delay-3 relative lg:col-span-5 lg:pt-2">
               <div className="relative mx-auto w-full max-w-[430px] lg:ml-auto">
-                <div className="relative overflow-hidden rounded-[40px_40px_140px_40px] border border-[#123126]/[0.06] bg-[#ede7db] shadow-[0_20px_60px_rgba(18,49,38,0.08)]">
-                  <Image
-                    src="/hero-suzuki.webp"
-                    alt="Mãe e criança em momento musical contemplativo"
-                    width={900}
-                    height={1200}
-                    priority
-                    className="h-[560px] w-full scale-[1.22] object-cover object-[50%_22%]"
-                  />
+              <div className="hero-gradient-border relative rounded-[40px_40px_140px_40px] p-[4px] shadow-[0_20px_60px_rgba(18,49,38,0.08)]">
+  <div className="relative overflow-hidden rounded-[38px_38px_138px_38px] bg-[#ede7db]">
+              <Image
+  src="/hero-suzuki-v2.webp"
+  alt="professor e criança em momento musical contemplativo"
+  width={900}
+  height={1200}
+  priority
+  className="h-[560px] w-full scale-[1.22] object-cover object-[50%_22%]"
+/>
 
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#123126]/10 via-transparent to-[#f5f1e8]/10" />
-                </div>
+<div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#123126]/10 via-transparent to-[#f5f1e8]/10" />
+  </div>
+</div>
 
-                <div className="absolute -left-12 bottom-[-18px] max-w-[330px] rounded-[28px] border border-[#123126]/[0.06] bg-[#fffefb]/78 p-6 shadow-[0_10px_40px_rgba(18,49,38,0.06)] backdrop-blur-md">
+<div className="absolute bottom-[-18px] left-4 right-4 max-w-none rounded-[28px] border border-[#123126]/[0.06] bg-[#FFE485]/90 p-5 shadow-[0_10px_40px_rgba(18,49,38,0.06)] backdrop-blur-md lg:-left-12 lg:right-auto lg:max-w-[330px] lg:p-6">
                   <span
                     className="absolute left-0 top-5 bottom-5 w-px bg-gradient-to-b from-[#f0743e]/20 via-[#f0743e]/60 to-[#f0743e]/10"
                     aria-hidden
                   />
 
-                  <p className="text-[0.92rem] font-light leading-relaxed text-[#123126]/84">
+                  <p className="text-[0.92rem] font-normal leading-relaxed text-[#123126]/84">
                     <span className="font-serif text-[1.15em] leading-none text-[#f0743e]/55">
                       “
                     </span>
@@ -412,6 +393,117 @@ export default function Home() {
             </div>
           </footer>
         </div>
+        <style jsx>{`
+  @property --border-angle {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  .hero-gradient-border {
+    position: relative;
+    background: linear-gradient(
+      135deg,
+      rgba(240, 116, 62, 0.95),
+      rgba(255, 205, 180, 0.9),
+      rgba(240, 116, 62, 0.95)
+    );
+  }
+
+  /* GLOW SUAVE */
+  .hero-gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: -18px;
+    border-radius: 58px 58px 158px 58px;
+    pointer-events: none;
+    z-index: 2;
+
+    background:
+      radial-gradient(
+        circle at 76% 24%,
+        rgba(240, 116, 62, 0.22) 0%,
+        rgba(240, 116, 62, 0.14) 8%,
+        rgba(240, 116, 62, 0.08) 14%,
+        transparent 24%
+      );
+
+    filter: blur(14px);
+
+    animation:
+      soundWaveMove 4.5s linear infinite,
+      soundWavePulse 2.4s ease-in-out infinite;
+  }
+
+  /* BORDA ANIMADA */
+  .hero-gradient-border::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 40px 40px 140px 40px;
+    padding: 3px;
+    pointer-events: none;
+    z-index: 5;
+
+    background: conic-gradient(
+      from var(--border-angle),
+      transparent 0deg,
+      transparent 250deg,
+      rgba(240, 116, 62, 0.12) 274deg,
+      rgba(240, 116, 62, 0.55) 288deg,
+      rgba(255, 247, 239, 0.92) 302deg,
+      #ffffff 309deg,
+      #f0743e 318deg,
+      rgba(240, 116, 62, 0.82) 330deg,
+      rgba(240, 116, 62, 0.22) 342deg,
+      transparent 360deg
+    );
+
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+
+    filter:
+      drop-shadow(0 0 8px rgba(240, 116, 62, 0.95))
+      drop-shadow(0 0 18px rgba(240, 116, 62, 0.45))
+      drop-shadow(0 0 28px rgba(240, 116, 62, 0.18));
+
+    animation: borderLightOrbit 4.5s linear infinite;
+
+    mix-blend-mode: screen;
+  }
+
+  @keyframes borderLightOrbit {
+    to {
+      --border-angle: 360deg;
+    }
+  }
+
+  @keyframes soundWaveMove {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes soundWavePulse {
+    0%, 100% {
+      opacity: 0.25;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.7;
+      transform: scale(1.04);
+    }
+  }
+`}</style>
       </main>
     </div>
   );
