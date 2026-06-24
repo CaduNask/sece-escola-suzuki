@@ -281,7 +281,12 @@ export default function Home() {
       pdf.save(`certificado-escola-suzuki-${gerarNomeArquivo()}.pdf`);
     } catch (error) {
       console.error("Erro ao baixar certificado:", error);
-      alert("Não foi possível baixar o certificado. Tente novamente.");
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível baixar o certificado. Tente novamente."
+      );
     } finally {
       setBaixando(false);
     }
@@ -347,7 +352,7 @@ export default function Home() {
                 </p>
 
                 <div className="mt-10">
-                  <Image
+                  <img
                     src="/logo-suzuki.svg"
                     alt="Escola Suzuki"
                     width={240}
