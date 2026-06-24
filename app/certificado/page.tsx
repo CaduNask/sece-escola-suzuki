@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { IBM_Plex_Sans, Noto_Sans_JP } from "next/font/google";
 
 import SuzukiCapsuleButton from "@/components/SuzukiCapsuleButton";
@@ -105,21 +107,12 @@ const SUZUKI_STAR_LAYER_CSS = `
 `;
 
 function SuzukiStarLayerStyles() {
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: SUZUKI_STAR_LAYER_CSS,
-      }}
-    />
-  );
+  return <style dangerouslySetInnerHTML={{ __html: SUZUKI_STAR_LAYER_CSS }} />;
 }
 
 function StarField() {
   return (
-    <div
-      className="pointer-events-none fixed inset-0 z-[2] overflow-visible"
-      aria-hidden
-    >
+    <div className="pointer-events-none fixed inset-0 z-[2] overflow-visible" aria-hidden>
       {STAR_SPECS.map(([top, left, size, opacity, dur, delay, motion, variant], i) => (
         <img
           key={`star-${STAR_SRC[variant]}-${i}`}
@@ -182,26 +175,13 @@ function SiteHeader() {
           className={`${fontDisplay.className} absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 md:flex md:items-center md:gap-10`}
           aria-label="Principal"
         >
-          <a className={link} href="/">
-            Recomeçar
-          </a>
-
-          <a
-            className={link}
-            href="https://escolasuzuki.com.br"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a className={link} href="/">Recomeçar</a>
+          <a className={link} href="https://escolasuzuki.com.br" target="_blank" rel="noopener noreferrer">
             Site oficial
           </a>
         </nav>
 
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hidden shrink-0 md:block"
-        >
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="hidden shrink-0 md:block">
           <SuzukiCapsuleButton size="sm">Fale conosco</SuzukiCapsuleButton>
         </a>
 
@@ -218,25 +198,11 @@ function SiteHeader() {
       {menuOpen && (
         <div className={`${fontDisplay.className} border-t border-[#123126]/[0.06] bg-[#faf8f2]/95 px-5 py-5 md:hidden`}>
           <div className="flex flex-col gap-5">
-            <a className={link} href="/">
-              Recomeçar
-            </a>
-
-            <a
-              className={link}
-              href="https://escolasuzuki.com.br"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a className={link} href="/">Recomeçar</a>
+            <a className={link} href="https://escolasuzuki.com.br" target="_blank" rel="noopener noreferrer">
               Site oficial
             </a>
-
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-fit"
-            >
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="w-fit">
               <SuzukiCapsuleButton size="sm">Fale conosco</SuzukiCapsuleButton>
             </a>
           </div>
@@ -247,15 +213,79 @@ function SiteHeader() {
 }
 
 export default function Home() {
+  const certificadoRef = useRef<HTMLDivElement>(null);
+
   const [nome, setNome] = useState("");
-  const [percentual, setPercentual] = useState(0);
   const [nivel, setNivel] = useState("");
+  const [baixando, setBaixando] = useState(false);
 
   useEffect(() => {
     setNome(localStorage.getItem("usuarioNome") || "");
-    setPercentual(Number(localStorage.getItem("resultadoPercentual") || "0"));
     setNivel(localStorage.getItem("resultadoNivel") || "");
   }, []);
+
+  const gerarNomeArquivo = () => {
+    return (nome || "participante")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .toLowerCase();
+  };
+
+  const baixarCertificadoPDF = async () => {
+    if (!certificadoRef.current || baixando) return;
+
+    try {
+      setBaixando(true);
+
+      const canvas = await html2canvas(certificadoRef.current, {
+        scale: 3,
+        backgroundColor: "#fffefb",
+        useCORS: true,
+        windowWidth: 1280,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const margin = 12;
+      const availableWidth = pageWidth - margin * 2;
+      const availableHeight = pageHeight - margin * 2;
+
+      const imgRatio = canvas.width / canvas.height;
+
+      let finalWidth = availableWidth;
+      let finalHeight = finalWidth / imgRatio;
+
+      if (finalHeight > availableHeight) {
+        finalHeight = availableHeight;
+        finalWidth = finalHeight * imgRatio;
+      }
+
+      const x = (pageWidth - finalWidth) / 2;
+      const y = (pageHeight - finalHeight) / 2;
+
+      pdf.setFillColor(250, 248, 242);
+      pdf.rect(0, 0, pageWidth, pageHeight, "F");
+      pdf.addImage(imgData, "PNG", x, y, finalWidth, finalHeight);
+      pdf.save(`certificado-escola-suzuki-${gerarNomeArquivo()}.pdf`);
+    } catch (error) {
+      console.error("Erro ao baixar certificado:", error);
+      alert("Não foi possível baixar o certificado. Tente novamente.");
+    } finally {
+      setBaixando(false);
+    }
+  };
 
   return (
     <div className="relative min-h-dvh w-full overflow-x-hidden">
@@ -275,8 +305,8 @@ export default function Home() {
           <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center">
 
             <div className="mb-12 min-w-0 rounded-[36px] border border-[#123126]/[0.07] bg-[#f3eee4] p-6 shadow-[0_20px_60px_rgba(18,49,38,0.05)] sm:p-8">
-              <div className="grid min-w-0 gap-10 lg:grid-cols-12 lg:items-center">
-                <div className="min-w-0 lg:col-span-8">
+              <div className="grid min-w-0 gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
+                <div className="min-w-0">
                   <p className={`${fontDisplay.className} break-words text-[0.68rem] font-medium uppercase tracking-[0.22em] text-[#f0743e]`}>
                     Próximo passo
                   </p>
@@ -292,14 +322,14 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div className="min-w-0 max-w-full lg:col-span-4 lg:flex lg:justify-end">
+                <div className="min-w-0 max-w-full lg:flex lg:justify-end lg:items-center">
                   <a
                     href="https://wa.me/5511945468423?text=Olá%2C%20acabei%20de%20concluir%20a%20experiência%20formativa%20da%20Escola%20Suzuki%20e%20gostaria%20de%20agendar%20uma%20aula%20experimental%20SECE.%20A%20experiência%20me%20despertou%20interesse%20em%20conhecer%20a%20metodologia."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block max-w-full overflow-hidden"
                   >
-                    <SuzukiCapsuleButton size="sm" className="max-w-full">
+                    <SuzukiCapsuleButton size="sm" className="whitespace-nowrap">
                       Agendar aula experimental
                     </SuzukiCapsuleButton>
                   </a>
@@ -307,7 +337,10 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="min-w-0 rounded-[42px] border border-[#123126]/[0.07] bg-[#fffefb]/50 p-6 shadow-[0_30px_80px_rgba(18,49,38,0.06)] backdrop-blur-sm sm:p-12">
+            <div
+              ref={certificadoRef}
+              className="min-w-0 rounded-[42px] border border-[#123126]/[0.07] bg-[#fffefb] p-6 shadow-[0_30px_80px_rgba(18,49,38,0.06)] backdrop-blur-sm sm:p-12"
+            >
               <div className="flex min-w-0 flex-col items-center text-center">
                 <p className={`${fontDisplay.className} max-w-full break-words text-[0.68rem] font-medium uppercase tracking-[0.28em] text-[#123126]/55`}>
                   Certificado de participação
@@ -384,6 +417,19 @@ export default function Home() {
                   </p>
                 </div>
               </div>
+            </div>
+
+            <div className="mt-8 flex justify-center">
+              <button
+                type="button"
+                onClick={baixarCertificadoPDF}
+                disabled={baixando}
+                className="block max-w-full overflow-hidden disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <SuzukiCapsuleButton size="sm" className="max-w-full">
+                  {baixando ? "Gerando PDF..." : "Baixar certificado em PDF"}
+                </SuzukiCapsuleButton>
+              </button>
             </div>
 
           </div>

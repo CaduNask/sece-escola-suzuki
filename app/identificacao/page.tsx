@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { IBM_Plex_Sans, Noto_Sans_JP } from "next/font/google";
@@ -17,7 +18,6 @@ const fontBody = Noto_Sans_JP({
   display: "swap",
 });
 
-/** Estrelas oficiais da identidade (arquivos em /public) */
 const STAR_SRC = [
   "/estrela-verde.svg",
   "/estrela-amarela.svg",
@@ -30,9 +30,6 @@ const STAR_MOTION_CLASS = [
   "suzuki-star-motion-drift",
 ] as const;
 
-/**
- * top%, left%, size(px), opacity (100%), duração 8–16s, delay(s), motion 0–2, variante 0=verde 1=amarela 2=laranja
- */
 const STAR_SPECS = [
   [4, 5, 36, 1, 14, 0.2, 0, 0],
   [7, 94, 32, 1, 18, 1.4, 1, 2],
@@ -50,7 +47,6 @@ const STAR_SPECS = [
   [93, 48, 24, 1, 18, 2.3, 1, 0],
 ] as const;
 
-/** Flutuação ampla (vw/vh); linear + keyframes em passos regulares = velocidade espacial mais uniforme, sem “arrastar e parar”. */
 const SUZUKI_STAR_LAYER_CSS = `
 @keyframes suzuki-star-float {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
@@ -224,136 +220,181 @@ function SiteHeader() {
 }
 
 export default function Home() {
-    const [nome, setNome] = useState("");
-const [email, setEmail] = useState("");
-const [telefone, setTelefone] = useState("");
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
 
-function handleContinuar() {
+  const formularioValido = nome.trim() && email.trim() && telefone.trim();
+
+  function handleContinuar() {
+    if (!nome.trim()) {
+      alert("Por favor, informe seu nome.");
+      return;
+    }
+
+    if (!email.trim()) {
+      alert("Por favor, informe seu e-mail.");
+      return;
+    }
+
+    if (!telefone.trim()) {
+      alert("Por favor, informe seu telefone.");
+      return;
+    }
+
+    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailValido.test(email)) {
+      alert("Por favor, informe um e-mail válido.");
+      return;
+    }
+
     localStorage.removeItem("respostasPesquisa");
-localStorage.removeItem("resultadoTotalPerguntas");
-localStorage.removeItem("resultadoTotalAcertos");
-localStorage.removeItem("resultadoPercentual");
-localStorage.removeItem("resultadoNivel");
-localStorage.removeItem("pesquisasDoPerfil");
-localStorage.removeItem("pesquisaAtualIndex");
+    localStorage.removeItem("resultadoTotalPerguntas");
+    localStorage.removeItem("resultadoTotalAcertos");
+    localStorage.removeItem("resultadoPercentual");
+    localStorage.removeItem("resultadoNivel");
+    localStorage.removeItem("pesquisasDoPerfil");
+    localStorage.removeItem("pesquisaAtualIndex");
 
-  localStorage.setItem("usuarioNome", nome);
-  localStorage.setItem("usuarioEmail", email);
-  localStorage.setItem("usuarioTelefone", telefone);
+    localStorage.setItem("usuarioNome", nome.trim());
+    localStorage.setItem("usuarioEmail", email.trim());
+    localStorage.setItem("usuarioTelefone", telefone.trim());
 
-  window.location.href = "/momento";
-}
-    return (
-      <div className="relative min-h-dvh w-full overflow-x-hidden">
-        <SuzukiStarLayerStyles />
-        <div
-          aria-hidden
-          className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-[#faf8f2] via-[#f5f1e8] to-[#efe9dd]"
-        />
-        <StarField />
-  
-        <main className={`${fontBody.className} relative z-10 flex min-h-dvh w-full flex-col bg-transparent text-[#123126] antialiased selection:bg-[#f0743e]/15`}>
-          <SiteHeader />
-  
-          <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col px-5 pb-16 pt-10 sm:px-8 sm:pb-20 sm:pt-12 md:px-12 lg:px-16 lg:pt-16">
-  
-          <div className="mt-10 grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
-  <section className="lg:col-span-5">
-    <p
-      className={`suzuki-enter suzuki-enter-delay-2 ${fontDisplay.className} text-[0.65rem] font-medium uppercase tracking-[0.28em] text-[#123126]/72 sm:text-xs`}
-    >
-      Identificação inicial
-    </p>
-
-    <h1
-      className={`suzuki-enter suzuki-enter-delay-3 mt-5 ${fontDisplay.className} text-[2.1rem] font-light leading-[1.12] tracking-[-0.02em] text-[#123126] sm:text-4xl md:text-[2.8rem]`}
-    >
-      Antes de começarmos,
-      <br />
-      queremos entender
-      <br />
-      seu momento.
-    </h1>  
-                <p className="suzuki-enter suzuki-enter-delay-4 mt-8 max-w-md text-[0.98rem] font-light leading-relaxed text-[#123126]/78 sm:text-base">
-                  A partir dessas informações, conseguimos organizar sua experiência
-                  e direcionar a pesquisa para a fase que você vive agora.
-                </p>
-              </section>
-  
-              <section className="suzuki-enter suzuki-enter-delay-4 lg:col-span-7">
-                <div className="rounded-[32px] border border-[#123126]/[0.07] bg-[#fffefb]/45 p-6 shadow-[0_20px_60px_rgba(18,49,38,0.05)] backdrop-blur-sm sm:p-8">
-                <div className="relative mb-10 flex items-start gap-4 rounded-[24px] border border-[#123126]/[0.04] bg-[#f3eee4] p-5">
-                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-[#f0743e]/70 shadow-[0_8px_24px_rgba(240,116,62,0.18)]">
-                      <Image
-                        src="/marcos-suzuki.webp"
-                        alt="Marcos Osaki"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-  
-                    <div>
-                      <p className={`${fontDisplay.className} text-[0.78rem] font-medium uppercase tracking-[0.18em] text-[#123126]/70`}>
-                        Marcos Osaki
-                      </p>
-                      <p className="mt-1 text-[0.9rem] font-light text-[#123126]/62">
-                        Fundador da Escola Suzuki
-                      </p>
-                      <p className="mt-3 max-w-md text-[0.92rem] font-light italic leading-relaxed text-[#123126]/72">
-                        “Vamos começar sua jornada entendendo o momento que você vive hoje.”
-                      </p>
-                    </div>
-                  </div>
-  
-                  <div className="grid gap-5">
-                    <label className="block">
-                      <span className={`${fontDisplay.className} text-[0.68rem] font-medium uppercase tracking-[0.2em] text-[#123126]/55`}>
-                        Nome
-                      </span>
-                      <input
-  type="text"
-  placeholder="Digite seu nome"
-  value={nome}
-  onChange={(event) => setNome(event.target.value)}
-  className="mt-3 w-full border-0 border-b border-[#123126]/18 bg-transparent px-0 py-3 text-base font-light text-[#123126] outline-none transition-colors placeholder:text-[#123126]/35 focus:border-[#f0743e]/70"
-/>
-                    </label>
-  
-                    <label className="block">
-                      <span className={`${fontDisplay.className} text-[0.68rem] font-medium uppercase tracking-[0.2em] text-[#123126]/55`}>
-                        Email
-                      </span>
-                      <input
-  type="email"
-  placeholder="seuemail@exemplo.com"
-  value={email}
-  onChange={(event) => setEmail(event.target.value)}
-  className="mt-3 w-full border-0 border-b border-[#123126]/18 bg-transparent px-0 py-3 text-base font-light text-[#123126] outline-none transition-colors placeholder:text-[#123126]/35 focus:border-[#f0743e]/70"
-/>
-                    </label>
-  
-                    <label className="block">
-                      <span className={`${fontDisplay.className} text-[0.68rem] font-medium uppercase tracking-[0.2em] text-[#123126]/55`}>
-                        Telefone
-                      </span>
-                      <input
-  type="tel"
-  placeholder="(00) 00000-0000"
-  value={telefone}
-  onChange={(event) => setTelefone(event.target.value)}
-  className="mt-3 w-full border-0 border-b border-[#123126]/18 bg-transparent px-0 py-3 text-base font-light text-[#123126] outline-none transition-colors placeholder:text-[#123126]/35 focus:border-[#f0743e]/70"
-/>
-                    </label>
-                  </div>
-  
-                  <div className="mt-10 cursor-pointer" onClick={handleContinuar}>
-  <SuzukiCapsuleButton size="md">Continuar</SuzukiCapsuleButton>
-</div>
-                </div>
-              </section>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
+    window.location.href = "/momento";
   }
+
+  return (
+    <div className="relative min-h-dvh w-full overflow-x-hidden">
+      <SuzukiStarLayerStyles />
+
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-[#faf8f2] via-[#f5f1e8] to-[#efe9dd]"
+      />
+
+      <StarField />
+
+      <main className={`${fontBody.className} relative z-10 flex min-h-dvh w-full flex-col bg-transparent text-[#123126] antialiased selection:bg-[#f0743e]/15`}>
+        <SiteHeader />
+
+        <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col px-5 pb-16 pt-10 sm:px-8 sm:pb-20 sm:pt-12 md:px-12 lg:px-16 lg:pt-16">
+          <div className="mt-10 grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
+            <section className="lg:col-span-5">
+              <p
+                className={`suzuki-enter suzuki-enter-delay-2 ${fontDisplay.className} text-[0.65rem] font-medium uppercase tracking-[0.28em] text-[#123126]/72 sm:text-xs`}
+              >
+                Identificação inicial
+              </p>
+
+              <h1
+                className={`suzuki-enter suzuki-enter-delay-3 mt-5 ${fontDisplay.className} text-[2.1rem] font-light leading-[1.12] tracking-[-0.02em] text-[#123126] sm:text-4xl md:text-[2.8rem]`}
+              >
+                Antes de começarmos,
+                <br />
+                queremos entender
+                <br />
+                seu momento.
+              </h1>
+
+              <p className="suzuki-enter suzuki-enter-delay-4 mt-8 max-w-md text-[0.98rem] font-light leading-relaxed text-[#123126]/78 sm:text-base">
+                A partir dessas informações, conseguimos organizar sua experiência
+                e direcionar a pesquisa para a fase que você vive agora.
+              </p>
+            </section>
+
+            <section className="suzuki-enter suzuki-enter-delay-4 lg:col-span-7">
+              <div className="rounded-[32px] border border-[#123126]/[0.07] bg-[#fffefb]/45 p-6 shadow-[0_20px_60px_rgba(18,49,38,0.05)] backdrop-blur-sm sm:p-8">
+                <div className="relative mb-10 flex items-start gap-4 rounded-[24px] border border-[#123126]/[0.04] bg-[#f3eee4] p-5">
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-[#f0743e]/70 shadow-[0_8px_24px_rgba(240,116,62,0.18)]">
+                    <Image
+                      src="/marcos-suzuki.webp"
+                      alt="Marcos Osaki"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+
+                  <div>
+                    <p className={`${fontDisplay.className} text-[0.78rem] font-medium uppercase tracking-[0.18em] text-[#123126]/70`}>
+                      Marcos Osaki
+                    </p>
+
+                    <p className="mt-1 text-[0.9rem] font-light text-[#123126]/62">
+                      Fundador da Escola Suzuki
+                    </p>
+
+                    <p className="mt-3 max-w-md text-[0.92rem] font-light italic leading-relaxed text-[#123126]/72">
+                      “Vamos começar sua jornada entendendo o momento que você vive hoje.”
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-5">
+                  <label className="block">
+                    <span className={`${fontDisplay.className} text-[0.68rem] font-medium uppercase tracking-[0.2em] text-[#123126]/55`}>
+                      Nome
+                    </span>
+
+                    <input
+                      type="text"
+                      placeholder="Digite seu nome"
+                      value={nome}
+                      onChange={(event) => setNome(event.target.value)}
+                      className="mt-3 w-full border-0 border-b border-[#123126]/18 bg-transparent px-0 py-3 text-base font-light text-[#123126] outline-none transition-colors placeholder:text-[#123126]/35 focus:border-[#f0743e]/70"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className={`${fontDisplay.className} text-[0.68rem] font-medium uppercase tracking-[0.2em] text-[#123126]/55`}>
+                      Email
+                    </span>
+
+                    <input
+                      type="email"
+                      placeholder="seuemail@exemplo.com"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      className="mt-3 w-full border-0 border-b border-[#123126]/18 bg-transparent px-0 py-3 text-base font-light text-[#123126] outline-none transition-colors placeholder:text-[#123126]/35 focus:border-[#f0743e]/70"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className={`${fontDisplay.className} text-[0.68rem] font-medium uppercase tracking-[0.2em] text-[#123126]/55`}>
+                      Telefone
+                    </span>
+
+                    <input
+                      type="tel"
+                      placeholder="(00) 00000-0000"
+                      value={telefone}
+                      onChange={(event) => setTelefone(event.target.value)}
+                      className="mt-3 w-full border-0 border-b border-[#123126]/18 bg-transparent px-0 py-3 text-base font-light text-[#123126] outline-none transition-colors placeholder:text-[#123126]/35 focus:border-[#f0743e]/70"
+                    />
+                  </label>
+                </div>
+
+                <div
+                  className={`mt-10 ${
+                    formularioValido
+                      ? "cursor-pointer"
+                      : "cursor-not-allowed opacity-50"
+                  }`}
+                  onClick={() => {
+                    if (formularioValido) {
+                      handleContinuar();
+                    }
+                  }}
+                >
+                  <SuzukiCapsuleButton size="md">
+                    Continuar
+                  </SuzukiCapsuleButton>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
