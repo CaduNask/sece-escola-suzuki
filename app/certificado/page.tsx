@@ -435,8 +435,12 @@ export default function Home() {
                     </p>
 
                     <p className="mt-3 break-words text-[1rem] font-light text-[#123126]">
-                      Maio de 2026
-                    </p>
+  {new Date().toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  })}
+</p>
                   </div>
                 </div>
 
