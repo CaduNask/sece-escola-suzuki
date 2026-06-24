@@ -245,6 +245,43 @@ export default function Home() {
         backgroundColor: "#fffefb",
         useCORS: true,
         windowWidth: 1280,
+      
+        onclone: (clonedDoc) => {
+          const allElements = clonedDoc.querySelectorAll("*");
+      
+          allElements.forEach((element) => {
+            const htmlElement = element as HTMLElement;
+            const style = clonedDoc.defaultView?.getComputedStyle(htmlElement);
+      
+            if (!style) return;
+      
+            const properties = [
+              "color",
+              "backgroundColor",
+              "borderColor",
+              "outlineColor",
+              "textDecorationColor",
+            ];
+      
+            properties.forEach((prop) => {
+              const value = style[prop as keyof CSSStyleDeclaration];
+      
+              if (
+                typeof value === "string" &&
+                (
+                  value.includes("lab(") ||
+                  value.includes("oklab(") ||
+                  value.includes("oklch(")
+                )
+              ) {
+                htmlElement.style.setProperty(
+                  prop.replace(/[A-Z]/g, m => "-" + m.toLowerCase()),
+                  "#123126"
+                );
+              }
+            });
+          });
+        },
       });
 
       const imgData = canvas.toDataURL("image/png");
